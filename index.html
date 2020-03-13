@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta charset="utf-8" />
+    <title>Checkout</title>
+
+    <script src="js/quagga.min.js" type="text/javascript"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="scanner" style="height: 100vh; width: 100vh;"></div>
+
+    <script>
+      function onDetected(barcode) {
+        console.log("Got barcode data", barcode);
+
+        if (!barcode.codeResult) { return; }
+
+        var result = barcode.codeResult.code;
+
+        // Remove anything that's not a number
+        var clean = result.replace(/\D/g,'');
+
+        console.log("Working with", clean);
+
+        if (clean.length !== 14) {
+          console.log("Wrong length", clean.length);
+          return;
+        }
+
+        window.location = "https://aadl.org/search/catalog/" + clean
+      }
+
+      Quagga.init({
+        inputStream : {
+          name : "Live",
+          type : "LiveStream",
+          target: document.querySelector('#scanner')    // Or '#yourElement' (optional)
+        },
+        decoder : {
+          readers : ["codabar_reader"]
+        }
+      }, function(err) {
+          if (err) {
+              console.log(err);
+              return
+          }
+          console.log("Initialization finished. Ready to start");
+          Quagga.start();
+          Quagga.onDetected(onDetected);
+      });
+    </script>
+  </body>
+
+</html>
